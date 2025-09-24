@@ -6,36 +6,44 @@ const originalText = document.getElementById("originalText");
 const translatedText = document.getElementById("translatedText");
 const userText = document.getElementById("userText");
 
-// Translate Button
 translateBtn.addEventListener("click", async () => {
   const text = userText.value.trim();
   if (!text) {
     alert("Please enter text to translate.");
     return;
   }
-
   const lang = document.querySelector("input[name='lang']:checked").value;
 
-  // Show loading
-  translatedText.innerText = "Translating...";
+  // show loading
+  translatedText.innerText = "⏳ Translating...";
   resultBox.classList.remove("hidden");
   originalText.innerText = text;
 
-  // Simulate API call (replace with real API later)
-  setTimeout(() => {
-    translatedText.innerText = `[${lang} Translation] → ${text}`;
-  }, 1200);
+  try {
+    const resp = await fetch("/api/translate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text, target: lang })
+    });
+
+    if (!resp.ok) {
+      translatedText.innerText = "⚠️ Error: " + resp.status;
+      return;
+    }
+
+    const data = await resp.json();
+    translatedText.innerText = data.translation || "⚠️ No translation";
+  } catch (e) {
+    translatedText.innerText = "⚠️ Network error";
+  }
 });
 
-// Reset Button
 resetBtn.addEventListener("click", () => {
   userText.value = "";
   resultBox.classList.add("hidden");
 });
 
-// Copy Button
 copyBtn.addEventListener("click", () => {
-  const text = translatedText.innerText;
-  navigator.clipboard.writeText(text);
-  alert("Translation copied to clipboard!");
+  navigator.clipboard.writeText(translatedText.innerText);
+  alert("Translation copied!");
 });
