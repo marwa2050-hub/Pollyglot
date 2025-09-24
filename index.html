@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PollyGlot – AI Translation App</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>🌍 PollyGlot</h1>
+    <p class="subtitle">Your AI-powered translation assistant</p>
+  </header>
+
+  <main>
+    <!-- Input Form -->
+    <section class="translator">
+      <label for="userText">Text to translate:</label>
+      <textarea id="userText" placeholder="Type something here..."></textarea>
+
+      <div class="language-select">
+        <p>Choose language:</p>
+        <label><input type="radio" name="lang" value="French" checked> French</label>
+        <label><input type="radio" name="lang" value="Spanish"> Spanish</label>
+        <label><input type="radio" name="lang" value="Japanese"> Japanese</label>
+      </div>
+
+      <button id="translateBtn">Translate</button>
+    </section>
+
+    <!-- Result -->
+    <section id="result" class="hidden">
+      <h2>Translation Result</h2>
+      <p><strong>Original:</strong> <span id="originalText"></span></p>
+      <p><strong>Your translation:</strong> <span id="translatedText"></span></p>
+      <div class="result-actions">
+        <button id="copyBtn">📋 Copy</button>
+        <button id="resetBtn">🔄 Start Over</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2025 PollyGlot – Built with ❤️ and AI</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
