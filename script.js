@@ -1,102 +1,73 @@
-// app.js
+// app.js (ویرایش شده)
 const $ = id => document.getElementById(id);
-const q = sel => document.querySelector(sel);
 
 const inputText = $('inputText');
 const translateBtn = $('translateBtn');
-const clearBtn = $('clearBtn');
-const resultCard = $('resultCard');
 const originalText = $('originalText');
 const translatedText = $('translatedText');
-const startoverBtn = $('startoverBtn');
 const copyBtn = $('copyBtn');
-const tempRange = $('tempRange');
-const tempVal = $('tempVal');
-const resultLang = $('resultLang');
-const errorEl = $('error');
+const resultSection = $('results');
+const resetBtn = $('resetBtn');
 
-const flags = { French: '🇫🇷 French', Spanish: '🇪🇸 Spanish', Japanese: '🇯🇵 Japanese' };
-
-tempRange?.addEventListener('input', () => { tempVal.textContent = tempRange.value; });
-
+// Language selector
 function getSelectedLang(){
-  const r = document.querySelector('input[name="lang"]:checked');
+  const r = document.querySelector('input[name="language"]:checked');
   return r ? r.value : null;
 }
 
-function showError(msg){
-  errorEl.textContent = msg || '';
-  if(msg) setTimeout(()=> errorEl.textContent = '', 4000);
-}
-
-// Translate
+// Translate button
 translateBtn.addEventListener('click', async () => {
-  errorEl.textContent = '';
   const text = inputText.value.trim();
   const lang = getSelectedLang();
-  if(!text){ showError('Please enter text to translate.'); return; }
-  if(!lang){ showError('Please choose a language.'); return; }
+
+  if(!text || !lang){
+    alert("Please enter text and choose a language.");
+    return;
+  }
 
   translateBtn.disabled = true;
-  translateBtn.textContent = 'Translating…';
-
-  originalText.textContent = text;
-  resultLang.textContent = flags[lang] ?? lang;
+  translateBtn.textContent = "Translating…";
 
   try {
-    const resp = await fetch('/api/translate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const resp = await fetch("https://libretranslate.com/translate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        text,
+        q: text,
+        source: "en",
         target: lang,
-        temperature: Number(tempRange?.value ?? 0.4),
-        max_tokens: 800
+        format: "text"
       })
     });
 
-    if(!resp.ok){
-      const t = await resp.text();
-      translatedText.textContent = 'Error: ' + resp.status;
-      console.error('Worker Error', resp.status, t);
-    } else {
-      const data = await resp.json();
-      translatedText.textContent = data.translation || '[No translation returned]';
-    }
+    const data = await resp.json();
 
-    // show result
-    resultCard.classList.remove('hidden');
-    resultCard.setAttribute('aria-hidden','false');
-    // scroll into view
-    resultCard.scrollIntoView({behavior:'smooth', block:'center'});
+    originalText.textContent = text;
+    translatedText.textContent = data.translatedText || "[No translation]";
+    resultSection.classList.remove("hidden");
+
   } catch (e) {
     console.error(e);
-    showError('Network error. Check console.');
+    alert("Translation failed. Please try again.");
   } finally {
     translateBtn.disabled = false;
-    translateBtn.textContent = 'Translate';
+    translateBtn.textContent = "Translate";
   }
 });
 
-// Clear / Reset
-clearBtn.addEventListener('click', () => {
-  inputText.value = '';
-  errorEl.textContent = '';
-  inputText.focus();
+// Reset
+resetBtn.addEventListener("click", () => {
+  inputText.value = "";
+  resultSection.classList.add("hidden");
 });
 
-startoverBtn.addEventListener('click', () => {
-  resultCard.classList.add('hidden');
-  resultCard.setAttribute('aria-hidden','true');
-});
-
-// Copy
-copyBtn.addEventListener('click', async () => {
+// Copy button
+copyBtn.addEventListener("click", async () => {
   try {
     await navigator.clipboard.writeText(translatedText.textContent);
-    copyBtn.textContent = 'Copied!';
-    setTimeout(()=> copyBtn.textContent = 'Copy', 1400);
+    copyBtn.textContent = "Copied!";
+    setTimeout(()=> copyBtn.textContent = "📋 Copy", 1200);
   } catch {
-    alert('Copy failed');
+    alert("Copy failed");
   }
 });
