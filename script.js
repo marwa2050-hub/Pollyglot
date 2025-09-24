@@ -1,49 +1,102 @@
-const translateBtn = document.getElementById("translateBtn");
-const resetBtn = document.getElementById("resetBtn");
-const copyBtn = document.getElementById("copyBtn");
-const resultBox = document.getElementById("result");
-const originalText = document.getElementById("originalText");
-const translatedText = document.getElementById("translatedText");
-const userText = document.getElementById("userText");
+// app.js
+const $ = id => document.getElementById(id);
+const q = sel => document.querySelector(sel);
 
-translateBtn.addEventListener("click", async () => {
-  const text = userText.value.trim();
-  if (!text) {
-    alert("Please enter text to translate.");
-    return;
-  }
-  const lang = document.querySelector("input[name='lang']:checked").value;
+const inputText = $('inputText');
+const translateBtn = $('translateBtn');
+const clearBtn = $('clearBtn');
+const resultCard = $('resultCard');
+const originalText = $('originalText');
+const translatedText = $('translatedText');
+const startoverBtn = $('startoverBtn');
+const copyBtn = $('copyBtn');
+const tempRange = $('tempRange');
+const tempVal = $('tempVal');
+const resultLang = $('resultLang');
+const errorEl = $('error');
 
-  // show loading
-  translatedText.innerText = "⏳ Translating...";
-  resultBox.classList.remove("hidden");
-  originalText.innerText = text;
+const flags = { French: '🇫🇷 French', Spanish: '🇪🇸 Spanish', Japanese: '🇯🇵 Japanese' };
+
+tempRange?.addEventListener('input', () => { tempVal.textContent = tempRange.value; });
+
+function getSelectedLang(){
+  const r = document.querySelector('input[name="lang"]:checked');
+  return r ? r.value : null;
+}
+
+function showError(msg){
+  errorEl.textContent = msg || '';
+  if(msg) setTimeout(()=> errorEl.textContent = '', 4000);
+}
+
+// Translate
+translateBtn.addEventListener('click', async () => {
+  errorEl.textContent = '';
+  const text = inputText.value.trim();
+  const lang = getSelectedLang();
+  if(!text){ showError('Please enter text to translate.'); return; }
+  if(!lang){ showError('Please choose a language.'); return; }
+
+  translateBtn.disabled = true;
+  translateBtn.textContent = 'Translating…';
+
+  originalText.textContent = text;
+  resultLang.textContent = flags[lang] ?? lang;
 
   try {
-    const resp = await fetch("/api/translate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text, target: lang })
+    const resp = await fetch('/api/translate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        text,
+        target: lang,
+        temperature: Number(tempRange?.value ?? 0.4),
+        max_tokens: 800
+      })
     });
 
-    if (!resp.ok) {
-      translatedText.innerText = "⚠️ Error: " + resp.status;
-      return;
+    if(!resp.ok){
+      const t = await resp.text();
+      translatedText.textContent = 'Error: ' + resp.status;
+      console.error('Worker Error', resp.status, t);
+    } else {
+      const data = await resp.json();
+      translatedText.textContent = data.translation || '[No translation returned]';
     }
 
-    const data = await resp.json();
-    translatedText.innerText = data.translation || "⚠️ No translation";
+    // show result
+    resultCard.classList.remove('hidden');
+    resultCard.setAttribute('aria-hidden','false');
+    // scroll into view
+    resultCard.scrollIntoView({behavior:'smooth', block:'center'});
   } catch (e) {
-    translatedText.innerText = "⚠️ Network error";
+    console.error(e);
+    showError('Network error. Check console.');
+  } finally {
+    translateBtn.disabled = false;
+    translateBtn.textContent = 'Translate';
   }
 });
 
-resetBtn.addEventListener("click", () => {
-  userText.value = "";
-  resultBox.classList.add("hidden");
+// Clear / Reset
+clearBtn.addEventListener('click', () => {
+  inputText.value = '';
+  errorEl.textContent = '';
+  inputText.focus();
 });
 
-copyBtn.addEventListener("click", () => {
-  navigator.clipboard.writeText(translatedText.innerText);
-  alert("Translation copied!");
+startoverBtn.addEventListener('click', () => {
+  resultCard.classList.add('hidden');
+  resultCard.setAttribute('aria-hidden','true');
+});
+
+// Copy
+copyBtn.addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(translatedText.textContent);
+    copyBtn.textContent = 'Copied!';
+    setTimeout(()=> copyBtn.textContent = 'Copy', 1400);
+  } catch {
+    alert('Copy failed');
+  }
 });
