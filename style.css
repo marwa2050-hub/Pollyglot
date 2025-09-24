@@ -33,46 +33,33 @@ textarea {
   margin: 15px 0;
   border: 1px solid #ccc;
   border-radius: 5px;
+  resize: none;
 }
 
 .languages {
-  margin: 15px 0;
+  margin: 20px 0;
+  display: flex;
+  justify-content: center;
+  gap: 25px;
 }
 
 .languages label {
-  margin: 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
   font-size: 16px;
 }
 
 .flag {
-  width: 25px;
-  vertical-align: middle;
-  margin-right: 5px;
+  width: 28px;
+  height: 20px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
 }
 
 button {
   background: #4CAF50;
   color: white;
   border: none;
-  padding: 12px 20px;
-  border-radius: 5px;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #45a049;
-}
-
-.result-box {
-  background: #fff;
-  padding: 20px;
-  margin: 20px auto;
-  border-radius: 8px;
-  width: 70%;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
-
-footer {
-  margin-top: 20px;
-}
+  padding: 12px 20
