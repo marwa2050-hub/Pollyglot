@@ -1,42 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>PollyGlot – Translate</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PollyGlot — AI Translation</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header>
-    <img src="assets/logo.svg" alt="PollyGlot Logo" class="logo">
-    <h1>PollyGlot</h1>
-  </header>
+  <main class="wrap">
+    <header class="header">
+      <!-- Bird SVG logo (gradient) -->
+      <div class="logo-wrap" aria-hidden="true">
+        <svg class="logo" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img">
+          <defs>
+            <linearGradient id="g1" x1="0" x2="1" y1="0" y2="1">
+              <stop offset="0" stop-color="#3ddc84"/>
+              <stop offset="1" stop-color="#1fb6ff"/>
+            </linearGradient>
+            <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+              <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#1b3b5a" flood-opacity="0.12"/>
+            </filter>
+          </defs>
+          <g filter="url(#shadow)">
+            <path d="M10 30c6-12 18-18 30-18 6 0 12 4 14 8-8 2-14 6-20 14-6 8-14 8-24 0 0 0 -2 -6 0 -4z" fill="url(#g1)"/>
+            <circle cx="36" cy="22" r="3.2" fill="#fff" />
+          </g>
+        </svg>
+      </div>
+      <div class="title">
+        <h1>PollyGlot</h1>
+        <p class="subtitle">Perfect translation — fast, clear, and polished</p>
+      </div>
+    </header>
 
-  <main>
-    <h2>Enter text to translate</h2>
-    <textarea id="inputText" placeholder="Type your text here..."></textarea>
+    <!-- Input Card -->
+    <section class="card input-card" aria-labelledby="enter-heading">
+      <h2 id="enter-heading">Text to translate</h2>
+      <textarea id="inputText" placeholder="Type or paste text here..." aria-label="Text to translate"></textarea>
 
-    <div class="languages">
-      <label>
-        <input type="radio" name="lang" value="French" checked>
-        <img src="assets/flags/fr.png" class="flag"> French
-      </label>
-      <label>
-        <input type="radio" name="lang" value="Spanish">
-        <img src="assets/flags/es.png" class="flag"> Spanish
-      </label>
-      <label>
-        <input type="radio" name="lang" value="Japanese">
-        <img src="assets/flags/jp.png" class="flag"> Japanese
-      </label>
-    </div>
+      <div class="langs" role="radiogroup" aria-label="Select target language">
+        <label class="lang">
+          <input type="radio" name="lang" value="French" checked>
+          <span class="flag">🇫🇷</span>
+          <span class="lang-name">French</span>
+        </label>
 
-    <button id="translateBtn">Translate</button>
+        <label class="lang">
+          <input type="radio" name="lang" value="Spanish">
+          <span class="flag">🇪🇸</span>
+          <span class="lang-name">Spanish</span>
+        </label>
+
+        <label class="lang">
+          <input type="radio" name="lang" value="Japanese">
+          <span class="flag">🇯🇵</span>
+          <span class="lang-name">Japanese</span>
+        </label>
+      </div>
+
+      <div class="controls">
+        <button id="translateBtn" class="btn primary">Translate</button>
+        <button id="clearBtn" class="btn ghost">Clear</button>
+      </div>
+
+      <p id="error" class="error" role="status" aria-live="polite"></p>
+    </section>
+
+    <!-- Result Card -->
+    <section class="card result-card hidden" id="resultCard" aria-hidden="true">
+      <div class="result-header">
+        <div class="result-lang" id="resultLang"><!-- flag + name inserted by JS --></div>
+        <div class="result-actions">
+          <button id="copyBtn" class="btn small">Copy</button>
+          <button id="startoverBtn" class="btn small ghost">Start Over</button>
+        </div>
+      </div>
+
+      <div class="result-block">
+        <h3>Original text</h3>
+        <pre id="originalText" class="box" aria-label="Original text"></pre>
+      </div>
+
+      <div class="result-block">
+        <h3>Your translation</h3>
+        <pre id="translatedText" class="box" aria-label="Translated text"></pre>
+      </div>
+
+      <div class="meta">
+        <label for="tempRange">Temperature</label>
+        <input id="tempRange" type="range" min="0" max="1" step="0.1" value="0.4">
+        <span id="tempVal">0.4</span>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <small>Built for Week 10 • Keep your OpenAI key secret</small>
+    </footer>
   </main>
 
-  <footer>
-    <a href="about.html">About</a>
-  </footer>
-
-  <script src="script.js"></script>
+  <script src="app.js" type="module"></script>
 </body>
 </html>
