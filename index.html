@@ -1,87 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>PollyGlot – AI Translation App</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>PollyGlot – Translate</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <main class="wrap">
+  <header>
+    <img src="assets/logo.svg" alt="PollyGlot Logo" class="logo">
+    <h1>PollyGlot</h1>
+  </header>
 
-    <!-- Header -->
-    <header class="header">
-      <!-- Bird Logo -->
-      <svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-        <path d="M32 4c-6 10-12 14-20 16 4 8 12 12 20 12s16-4 20-12c-8-2-14-6-20-16z" fill="url(#grad1)"/>
-        <circle cx="32" cy="24" r="4" fill="#fff"/>
-        <defs>
-          <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style="stop-color:#4CAF50;stop-opacity:1" />
-            <stop offset="100%" style="stop-color:#2196F3;stop-opacity:1" />
-          </linearGradient>
-        </defs>
-      </svg>
-      <div class="title">
-        <h1>PollyGlot</h1>
-        <p class="subtitle">AI-Powered Translations</p>
-      </div>
-    </header>
+  <main>
+    <h2>Enter text to translate</h2>
+    <textarea id="inputText" placeholder="Type your text here..."></textarea>
 
-    <!-- Input Card -->
-    <section class="card input-card">
-      <h2>Text to Translate</h2>
-      <textarea id="inputText" placeholder="Type your text here..."></textarea>
+    <div class="languages">
+      <label>
+        <input type="radio" name="lang" value="French" checked>
+        <img src="assets/flags/fr.png" class="flag"> French
+      </label>
+      <label>
+        <input type="radio" name="lang" value="Spanish">
+        <img src="assets/flags/es.png" class="flag"> Spanish
+      </label>
+      <label>
+        <input type="radio" name="lang" value="Japanese">
+        <img src="assets/flags/jp.png" class="flag"> Japanese
+      </label>
+    </div>
 
-      <div class="langs">
-        <label class="lang">
-          <input type="radio" name="language" value="fr" />
-          <span>🇫🇷 French</span>
-        </label>
-        <label class="lang">
-          <input type="radio" name="language" value="es" />
-          <span>🇪🇸 Spanish</span>
-        </label>
-        <label class="lang">
-          <input type="radio" name="language" value="ja" />
-          <span>🇯🇵 Japanese</span>
-        </label>
-      </div>
-
-      <div class="controls">
-        <button id="translateBtn" class="btn primary">Translate</button>
-        <button id="resetBtn" class="btn ghost">Start Over</button>
-      </div>
-    </section>
-
-    <!-- Result Card -->
-    <section class="card result-card hidden" id="resultCard" aria-hidden="true">
-      <div class="result-header">
-        <div class="result-lang" id="resultLang">🌐 Translation</div>
-        <div class="result-actions">
-          <button id="copyBtn" class="btn small ghost">📋 Copy</button>
-        </div>
-      </div>
-
-      <div class="result-block">
-        <h3>Original</h3>
-        <div class="box" id="originalText"></div>
-      </div>
-
-      <div class="result-block">
-        <h3>Your Translation</h3>
-        <div class="box" id="translatedText"></div>
-      </div>
-
-      <div class="meta">
-        <label for="tempRange">Temperature:</label>
-        <input type="range" id="tempRange" min="0.2" max="1" step="0.1" value="0.5"/>
-        <span id="tempValue">0.5</span>
-      </div>
-    </section>
-
+    <button id="translateBtn">Translate</button>
   </main>
 
-  <script src="app.js" type="module"></script>
+  <footer>
+    <a href="about.html">About</a>
+  </footer>
+
+  <script src="script.js"></script>
 </body>
 </html>
