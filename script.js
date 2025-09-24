@@ -1,73 +1,52 @@
-// app.js (ویرایش شده)
-const $ = id => document.getElementById(id);
+// Wait until page loads
+document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.getElementById("translateBtn");
 
-const inputText = $('inputText');
-const translateBtn = $('translateBtn');
-const originalText = $('originalText');
-const translatedText = $('translatedText');
-const copyBtn = $('copyBtn');
-const resultSection = $('results');
-const resetBtn = $('resetBtn');
+  if (btn) {
+    btn.addEventListener("click", async () => {
+      const text = document.getElementById("inputText").value;
+      const lang = document.querySelector("input[name='lang']:checked").value;
 
-// Language selector
-function getSelectedLang(){
-  const r = document.querySelector('input[name="language"]:checked');
-  return r ? r.value : null;
-}
+      if (!text.trim()) {
+        alert("Please enter some text to translate.");
+        return;
+      }
 
-// Translate button
-translateBtn.addEventListener('click', async () => {
-  const text = inputText.value.trim();
-  const lang = getSelectedLang();
+      try {
+        // Call free LibreTranslate API
+        const resp = await fetch("https://translate.astian.org/translate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            q: text,
+            source: "en",
+            target: lang,
+            format: "text"
+          })
+        });
 
-  if(!text || !lang){
-    alert("Please enter text and choose a language.");
-    return;
-  }
+        const data = await resp.json();
 
-  translateBtn.disabled = true;
-  translateBtn.textContent = "Translating…";
+        // Save in localStorage
+        localStorage.setItem("original", text);
+        localStorage.setItem("language", lang);
+        localStorage.setItem("translated", data.translatedText);
 
-  try {
-    const resp = await fetch("https://libretranslate.com/translate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        q: text,
-        source: "en",
-        target: lang,
-        format: "text"
-      })
+        // Go to result page
+        window.location.href = "result.html";
+
+      } catch (err) {
+        console.error("Translation error:", err);
+        alert("Sorry, translation service is not available right now.");
+      }
     });
-
-    const data = await resp.json();
-
-    originalText.textContent = text;
-    translatedText.textContent = data.translatedText || "[No translation]";
-    resultSection.classList.remove("hidden");
-
-  } catch (e) {
-    console.error(e);
-    alert("Translation failed. Please try again.");
-  } finally {
-    translateBtn.disabled = false;
-    translateBtn.textContent = "Translate";
   }
-});
 
-// Reset
-resetBtn.addEventListener("click", () => {
-  inputText.value = "";
-  resultSection.classList.add("hidden");
-});
-
-// Copy button
-copyBtn.addEventListener("click", async () => {
-  try {
-    await navigator.clipboard.writeText(translatedText.textContent);
-    copyBtn.textContent = "Copied!";
-    setTimeout(()=> copyBtn.textContent = "📋 Copy", 1200);
-  } catch {
-    alert("Copy failed");
+  // Show texts on result page
+  if (document.getElementById("originalText")) {
+    document.getElementById("originalText").innerText =
+      localStorage.getItem("original") || "";
+    document.getElementById("translatedText").innerText =
+      localStorage.getItem("translated") || "";
   }
 });
