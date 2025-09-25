@@ -3,36 +3,63 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PollyGlot – AI Translator</title>
+  <title>PollyGlot – AI Translation App</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="container">
-    <h1>🌍 PollyGlot Translator</h1>
+    
+    <!-- Header with bird logo -->
+    <header>
+      <svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+        <path d="M32 4c-6 10-12 14-20 16 4 8 12 12 20 12s16-4 20-12c-8-2-14-6-20-16z" fill="url(#grad1)"/>
+        <circle cx="32" cy="24" r="4" fill="#fff"/>
+        <defs>
+          <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#4CAF50;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#2196F3;stop-opacity:1" />
+          </linearGradient>
+        </defs>
+      </svg>
+      <h1>PollyGlot</h1>
+    </header>
 
-    <label for="text">Enter text:</label>
-    <textarea id="text" placeholder="Type something..."></textarea>
+    <!-- Input area -->
+    <section class="input-section">
+      <textarea id="inputText" placeholder="Enter text to translate..."></textarea>
+    </section>
 
-    <label for="target">Choose language:</label>
-    <select id="target">
-      <option value="fr">French</option>
-      <option value="de">German</option>
-      <option value="es">Spanish</option>
-      <option value="ar">Arabic</option>
-      <option value="fa">Persian</option>
-      <option value="ru">Russian</option>
-      <option value="zh">Chinese</option>
-      <option value="hi">Hindi</option>
-      <option value="tr">Turkish</option>
-      <option value="en">English</option>
-    </select>
+    <!-- Language selection -->
+    <section class="language-section">
+      <label>
+        <input type="radio" name="language" value="fr">
+        <span>🇫🇷 French</span>
+      </label>
+      <label>
+        <input type="radio" name="language" value="es">
+        <span>🇪🇸 Spanish</span>
+      </label>
+      <label>
+        <input type="radio" name="language" value="ja">
+        <span>🇯🇵 Japanese</span>
+      </label>
+    </section>
 
-    <button id="translateBtn">Translate</button>
+    <!-- Buttons -->
+    <section class="actions">
+      <button id="translateBtn">Translate</button>
+      <button id="resetBtn" class="secondary">Start Over</button>
+    </section>
 
-    <h2>Translation:</h2>
-    <div id="result"></div>
+    <!-- Results -->
+    <section id="results" class="hidden">
+      <h2>Translation Result</h2>
+      <p><strong>Original:</strong> <span id="originalText"></span></p>
+      <p><strong>Your translation:</strong> <span id="translatedText"></span></p>
+      <button id="copyBtn">📋 Copy</button>
+    </section>
   </div>
 
-  <script src="script.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
