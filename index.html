@@ -1,65 +1,127 @@
-const workerURL = "https://9pp2ts6jwm.workers.dev"; // Worker خودت
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PollyGlot – AI Translation App</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    
+    <!-- Header with bird logo -->
+    <header>
+      <svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+        <path d="M32 4c-6 10-12 14-20 16 4 8 12 12 20 12s16-4 20-12c-8-2-14-6-20-16z" fill="url(#grad1)"/>
+        <circle cx="32" cy="24" r="4" fill="#fff"/>
+        <defs>
+          <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#4CAF50;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#2196F3;stop-opacity:1" />
+          </linearGradient>
+        </defs>
+      </svg>
+      <h1>PollyGlot</h1>
+    </header>
 
-const inputText = document.getElementById("inputText");
-const translateBtn = document.getElementById("translateBtn");
-const resetBtn = document.getElementById("resetBtn");
-const copyBtn = document.getElementById("copyBtn");
+    <!-- Input area -->
+    <section class="input-section">
+      <textarea id="inputText" placeholder="Enter text to translate..."></textarea>
+    </section>
 
-const results = document.getElementById("results");
-const originalText = document.getElementById("originalText");
-const translatedText = document.getElementById("translatedText");
+    <!-- Language selection -->
+    <section class="language-section">
+      <label>
+        <input type="radio" name="language" value="fr">
+        <span>🇫🇷 French</span>
+      </label>
+      <label>
+        <input type="radio" name="language" value="es">
+        <span>🇪🇸 Spanish</span>
+      </label>
+      <label>
+        <input type="radio" name="language" value="ja">
+        <span>🇯🇵 Japanese</span>
+      </label>
+    </section>
 
-translateBtn.addEventListener("click", async () => {
-  const text = inputText.value.trim();
-  const language = document.querySelector('input[name="language"]:checked');
+    <!-- Buttons -->
+    <section class="actions">
+      <button id="translateBtn">Translate</button>
+      <button id="resetBtn" class="secondary">Start Over</button>
+    </section>
 
-  if (!text) {
-    alert("⚠️ Please enter some text.");
-    return;
-  }
-  if (!language) {
-    alert("⚠️ Please select a language.");
-    return;
-  }
+    <!-- Results -->
+    <section id="results" class="hidden">
+      <h2>Translation Result</h2>
+      <p><strong>Original:</strong> <span id="originalText"></span></p>
+      <p><strong>Your translation:</strong> <span id="translatedText"></span></p>
+      <button id="copyBtn">📋 Copy</button>
+    </section>
+  </div>
 
-  results.classList.remove("hidden");
-  originalText.textContent = text;
-  translatedText.textContent = "⏳ Translating...";
+  <script>
+    const workerURL = "https://9pp2ts6jwm.workers.dev"; // آدرس ورکر خودت
 
-  try {
-    const response = await fetch(workerURL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        text,
-        target: language.value
-      })
+    const inputText = document.getElementById("inputText");
+    const translateBtn = document.getElementById("translateBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const copyBtn = document.getElementById("copyBtn");
+    const results = document.getElementById("results");
+    const originalText = document.getElementById("originalText");
+    const translatedText = document.getElementById("translatedText");
+
+    translateBtn.addEventListener("click", async () => {
+      const text = inputText.value.trim();
+      const language = document.querySelector('input[name="language"]:checked');
+
+      if (!text) {
+        alert("⚠️ Please enter some text.");
+        return;
+      }
+      if (!language) {
+        alert("⚠️ Please select a language.");
+        return;
+      }
+
+      results.classList.remove("hidden");
+      originalText.textContent = text;
+      translatedText.textContent = "⏳ Translating...";
+
+      try {
+        const response = await fetch(workerURL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text, target: language.value })
+        });
+
+        if (!response.ok) {
+          const errMsg = await response.text();
+          translatedText.textContent = `❌ Error: ${errMsg}`;
+          return;
+        }
+
+        const data = await response.json();
+        translatedText.textContent = data.translation || "❌ No translation returned.";
+      } catch (err) {
+        translatedText.textContent = "⚠️ Failed to connect to server.";
+        console.error(err);
+      }
     });
 
-    if (!response.ok) {
-      const errMsg = await response.text();
-      translatedText.textContent = `❌ Error: ${errMsg}`;
-      return;
-    }
+    resetBtn.addEventListener("click", () => {
+      inputText.value = "";
+      translatedText.textContent = "";
+      originalText.textContent = "";
+      results.classList.add("hidden");
+    });
 
-    const data = await response.json();
-    translatedText.textContent = data.translation || "❌ No translation returned.";
-  } catch (err) {
-    translatedText.textContent = "⚠️ Failed to connect to server.";
-    console.error(err);
-  }
-});
-
-resetBtn.addEventListener("click", () => {
-  inputText.value = "";
-  translatedText.textContent = "";
-  originalText.textContent = "";
-  results.classList.add("hidden");
-});
-
-copyBtn.addEventListener("click", () => {
-  const textToCopy = translatedText.textContent;
-  navigator.clipboard.writeText(textToCopy).then(() => {
-    alert("✅ Copied to clipboard!");
-  });
-});
+    copyBtn.addEventListener("click", () => {
+      const textToCopy = translatedText.textContent;
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        alert("✅ Copied to clipboard!");
+      });
+    });
+  </script>
+</body>
+</html>
