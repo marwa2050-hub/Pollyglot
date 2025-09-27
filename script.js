@@ -1,63 +1,44 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const workerURL = "https://weathered-shape-29ba.9pp2ts6jwm.workers.dev/"; // Worker endpoint
+  const btn = document.getElementById("translateBtn");
 
-  const inputText = document.getElementById("inputText");
-  const translateBtn = document.getElementById("translateBtn");
-  const resetBtn = document.getElementById("resetBtn");
-  const copyBtn = document.getElementById("copyBtn");
-  const results = document.getElementById("results");
-  const originalText = document.getElementById("originalText");
-  const translatedText = document.getElementById("translatedText");
+  btn.addEventListener("click", async () => {
+    const text = document.getElementById("inputText").value;
+    const lang = document.querySelector("input[name='language']:checked")?.value;
 
-  translateBtn.addEventListener("click", async () => {
-    const text = inputText.value.trim();
-    const language = document.querySelector('input[name="language"]:checked');
-
-    if (!text) {
-      alert("⚠️ Please enter some text.");
+    if (!text.trim()) {
+      alert("⚠️ لطفاً متن وارد کنید");
       return;
     }
-    if (!language) {
-      alert("⚠️ Please select a language.");
+    if (!lang) {
+      alert("⚠️ لطفاً زبان مقصد را انتخاب کنید");
       return;
     }
-
-    results.classList.remove("hidden");
-    originalText.textContent = text;
-    translatedText.textContent = "⏳ Translating...";
 
     try {
-      const response = await fetch(workerURL, {
+      console.log("🔹 Sending request to Worker...");
+
+      const resp = await fetch("https://weathered-shape-29ba.9pp2ts6jwm.workers.dev", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, target: language.value }),
+        body: JSON.stringify({ text, target: lang }),
       });
 
-      if (!response.ok) {
-        const errMsg = await response.text();
-        translatedText.textContent = `❌ Error: ${errMsg}`;
+      console.log("Response status:", resp.status);
+
+      if (!resp.ok) {
+        const err = await resp.text();
+        document.getElementById("translatedText").innerText = "❌ Error: " + err;
         return;
       }
 
-      const data = await response.json();
-      translatedText.textContent = data.translation || "❌ No translation returned.";
+      const data = await resp.json();
+      console.log("✅ Translation result:", data);
+
+      document.getElementById("originalText").innerText = text;
+      document.getElementById("translatedText").innerText = data.translation || "❌ No translation returned.";
     } catch (err) {
-      translatedText.textContent = "⚠️ Failed to connect to server.";
-      console.error(err);
+      console.error("⚠️ Fetch error:", err);
+      document.getElementById("translatedText").innerText = "⚠️ Failed to connect to server.";
     }
-  });
-
-  resetBtn.addEventListener("click", () => {
-    inputText.value = "";
-    translatedText.textContent = "";
-    originalText.textContent = "";
-    results.classList.add("hidden");
-  });
-
-  copyBtn.addEventListener("click", () => {
-    const textToCopy = translatedText.textContent;
-    navigator.clipboard.writeText(textToCopy).then(() => {
-      alert("✅ Copied to clipboard!");
-    });
   });
 });
