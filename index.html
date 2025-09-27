@@ -1,189 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PollyGlot – AI Translation App</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <div class="container">
-    
-    <!-- Header with bird logo -->
-    <header>
-      <svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-        <path d="M32 4c-6 10-12 14-20 16 4 8 12 12 20 12s16-4 20-12c-8-2-14-6-20-16z" fill="url(#grad1)"/>
-        <circle cx="32" cy="24" r="4" fill="#fff"/>
-        <defs>
-          <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style="stop-color:#4CAF50;stop-opacity:1" />
-            <stop offset="100%" style="stop-color:#2196F3;stop-opacity:1" />
-          </linearGradient>
-        </defs>
-      </svg>
-      <h1>PollyGlot</h1>
-    </header>
+<div class="pollyglot-container">
+  <h1>PollyGlot</h1>
 
-    <!-- Input area -->
-    <section class="input-section">
-      <textarea id="inputText" placeholder="Enter text to translate..."></textarea>
-    </section>
+  <label for="text">Text to translate</label>
+  <textarea id="text" rows="6" placeholder="Type text here..."></textarea>
 
-    <!-- Language selection -->
-    <section class="language-section">
-      <label>
-        <input type="radio" name="language" value="fr">
-        <span>🇫🇷 French</span>
-      </label>
-      <label>
-        <input type="radio" name="language" value="es">
-        <span>🇪🇸 Spanish</span>
-      </label>
-      <label>
-        <input type="radio" name="language" value="ja">
-        <span>🇯🇵 Japanese</span>
-      </label>
-    </section>
-
-    <!-- Buttons -->
-    <section class="actions">
-      <button id="translateBtn">Translate</button>
-      <button id="resetBtn" class="secondary">Start Over</button>
-    </section>
-
-    <!-- Results -->
-    <section id="results" class="hidden">
-      <h2>Translation Result</h2>
-      <p><strong>Original:</strong> <span id="originalText"></span></p>
-      <p><strong>Your translation:</strong> <span id="translatedText"></span></p>
-      <button id="copyBtn">📋 Copy</button>
-    </section>
+  <div class="language">
+    <label><input type="radio" name="lang" value="fr" checked> French</label>
+    <label><input type="radio" name="lang" value="es"> Spanish</label>
+    <label><input type="radio" name="lang" value="ja"> Japanese</label>
   </div>
 
-  <script src="app.js"></script>
-</body>
-</html>
+  <button id="translateBtn">Translate</button>
 
-
-// Wait until page loads
-document.addEventListener("DOMContentLoaded", () => {
-  const btn = document.getElementById("translateBtn");
-
-  if (btn) {
-    btn.addEventListener("click", async () => {
-      const text = document.getElementById("inputText").value;
-      const lang = document.querySelector("input[name='lang']:checked").value;
-
-      if (!text.trim()) {
-        alert("Please enter some text to translate.");
-        return;
-      }
-
-      try {
-        // Call free LibreTranslate API
-        const resp = await fetch("https://translate.astian.org/translate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            q: text,
-            source: "en",
-            target: lang,
-            format: "text"
-          })
-        });
-
-        const data = await resp.json();
-
-        // Save in localStorage
-        localStorage.setItem("original", text);
-        localStorage.setItem("language", lang);
-        localStorage.setItem("translated", data.translatedText);
-
-        // Go to result page
-        window.location.href = "result.html";
-
-      } catch (err) {
-        console.error("Translation error:", err);
-        alert("Sorry, translation service is not available right now.");
-      }
-    });
-  }
-
-  // Show texts on result page
-  if (document.getElementById("originalText")) {
-    document.getElementById("originalText").innerText =
-      localStorage.getItem("original") || "";
-    document.getElementById("translatedText").innerText =
-      localStorage.getItem("translated") || "";
-  }
-});
-
-addEventListener('fetch', event => {
-  event.respondWith(handle(event.request));
-});
-
-const OPENAI_URL = 'https://api.openai.com/v1/chat/completions';
-
-async function handle(req){
-  if (req.method === 'OPTIONS') {
-    return new Response(null, {
-      status: 204,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type'
-      }
-    });
-  }
-
-  if (req.method !== 'POST') return new Response('Method Not Allowed', { status: 405 });
-
-  let body;
-  try { body = await req.json(); } catch { return new Response('Invalid JSON', { status: 400 }); }
-
-  const { text, target, temperature = 0.4, max_tokens = 800 } = body;
-  if (!text || !target) return new Response('Missing text or target', { status: 400 });
-
-  const systemPrompt = `You are a precise translator. Translate the user's text into the requested language. Return ONLY the translated text. Do not add explanations, transliterations, or commentary. Preserve tone and punctuation.`;
-  const userPrompt = `Translate into ${target}:\n\n"""${text}"""`;
-
-  const payload = {
-    model: "gpt-4",
-    messages: [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: userPrompt }
-    ],
-    temperature: Number(temperature),
-    max_tokens: Number(max_tokens),
-    n: 1
-  };
-
-  // OPENAI_API_KEY will be injected by wrangler as a secret env var
-  const OPENAI_KEY = OPENAI_API_KEY;
-  if (!OPENAI_KEY) return new Response('Server misconfigured: missing OPENAI_API_KEY', { status: 500 });
-
-  const resp = await fetch(OPENAI_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${OPENAI_KEY}`
-    },
-    body: JSON.stringify(payload)
-  });
-
-  if (!resp.ok) {
-    const t = await resp.text();
-    return new Response(t, { status: resp.status, headers: { 'Access-Control-Allow-Origin': '*' }});
-  }
-
-  const data = await resp.json();
-  const translation = data.choices?.[0]?.message?.content?.trim() ?? '';
-
-  return new Response(JSON.stringify({ translation }), {
-    status: 200,
-    headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*'
-    }
-  });
-}
+  <section id="result" hidden>
+    <h2>Translation Result</h2>
+    <p><strong>Original:</strong> <span id="originalText"></span></p>
+    <p><strong>Your translation:</strong> <span id="translatedText"></span></p>
+    <button id="startOverBtn">Start Over</button>
+  </section>
+</div>
