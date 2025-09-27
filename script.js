@@ -1,73 +1,44 @@
-// app.js - PollyGlot Translation App (Frontend)
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PollyGlot – AI Translation App</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>❤️ PollyGlot</h1>
+      <p>AI-powered Translator</p>
+    </header>
 
-document.addEventListener("DOMContentLoaded", () => {
-  const btn = document.getElementById("translateBtn");
-  const resetBtn = document.getElementById("resetBtn");
-  const copyBtn = document.getElementById("copyBtn");
+    <section>
+      <textarea id="inputText" placeholder="Enter text to translate..."></textarea>
+    </section>
 
-  // ✅ Translate button
-  if (btn) {
-    btn.addEventListener("click", async () => {
-      const text = document.getElementById("inputText").value;
-      const lang = document.querySelector("input[name='language']:checked")?.value;
+    <section>
+      <label><input type="radio" name="language" value="French"> 🇫🇷 French</label>
+      <label><input type="radio" name="language" value="Spanish"> 🇪🇸 Spanish</label>
+      <label><input type="radio" name="language" value="Japanese"> 🇯🇵 Japanese</label>
+      <label><input type="radio" name="language" value="German"> 🇩🇪 German</label>
+      <label><input type="radio" name="language" value="Arabic"> 🇸🇦 Arabic</label>
+      <label><input type="radio" name="language" value="Persian"> 🇮🇷 Persian</label>
+    </section>
 
-      if (!text.trim()) {
-        alert("Please enter some text to translate.");
-        return;
-      }
-      if (!lang) {
-        alert("Please select a target language.");
-        return;
-      }
+    <section>
+      <button id="translateBtn">Translate</button>
+      <button id="resetBtn">Reset</button>
+    </section>
 
-      try {
-        // 👇 Worker endpoint (change if Worker name changes)
-        const resp = await fetch("https://weathered-shape-29ba.9pp2ts6jwm.workers.dev/", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text, target: lang }),
-        });
+    <section id="results" class="hidden">
+      <h2>Translation Result</h2>
+      <p><strong>Original:</strong> <span id="originalText"></span></p>
+      <p><strong>Your translation:</strong> <span id="translatedText"></span></p>
+      <button id="copyBtn">📋 Copy</button>
+    </section>
+  </div>
 
-        if (!resp.ok) throw new Error("Translation failed");
-
-        const data = await resp.json();
-
-        // Save results in localStorage
-        localStorage.setItem("original", text);
-        localStorage.setItem("translated", data.translation);
-
-        // Redirect to result page
-        window.location.href = "result.html";
-      } catch (err) {
-        console.error("Translation error:", err);
-        alert("Sorry, translation service is not available right now.");
-      }
-    });
-  }
-
-  // ✅ Reset button
-  if (resetBtn) {
-    resetBtn.addEventListener("click", () => {
-      localStorage.clear();
-      window.location.href = "index.html";
-    });
-  }
-
-  // ✅ Copy button
-  if (copyBtn) {
-    copyBtn.addEventListener("click", () => {
-      const translatedText = localStorage.getItem("translated") || "";
-      navigator.clipboard.writeText(translatedText).then(() => {
-        alert("Translation copied to clipboard!");
-      });
-    });
-  }
-
-  // ✅ Show results on result page
-  if (document.getElementById("originalText")) {
-    document.getElementById("originalText").innerText =
-      localStorage.getItem("original") || "";
-    document.getElementById("translatedText").innerText =
-      localStorage.getItem("translated") || "";
-  }
-});
+  <script src="app.js"></script>
+</body>
+</html>
