@@ -1,44 +1,70 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PollyGlot – AI Translation App</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <div class="container">
-    <header>
-      <h1>❤️ PollyGlot</h1>
-      <p>AI-powered Translator</p>
-    </header>
+// آدرس دقیق Worker خودت
+const workerURL = "https://weathered-shape-29ba.9pp2ts6jwm.workers.dev/";
 
-    <section>
-      <textarea id="inputText" placeholder="Enter text to translate..."></textarea>
-    </section>
+// انتخاب عناصر HTML
+const inputText = document.getElementById("inputText");
+const translateBtn = document.getElementById("translateBtn");
+const resetBtn = document.getElementById("resetBtn");
+const copyBtn = document.getElementById("copyBtn");
+const results = document.getElementById("results");
+const originalText = document.getElementById("originalText");
+const translatedText = document.getElementById("translatedText");
 
-    <section>
-      <label><input type="radio" name="language" value="French"> 🇫🇷 French</label>
-      <label><input type="radio" name="language" value="Spanish"> 🇪🇸 Spanish</label>
-      <label><input type="radio" name="language" value="Japanese"> 🇯🇵 Japanese</label>
-      <label><input type="radio" name="language" value="German"> 🇩🇪 German</label>
-      <label><input type="radio" name="language" value="Arabic"> 🇸🇦 Arabic</label>
-      <label><input type="radio" name="language" value="Persian"> 🇮🇷 Persian</label>
-    </section>
+// دکمه ترجمه
+translateBtn.addEventListener("click", async () => {
+  const text = inputText.value.trim();
+  const language = document.querySelector('input[name="language"]:checked');
 
-    <section>
-      <button id="translateBtn">Translate</button>
-      <button id="resetBtn">Reset</button>
-    </section>
+  if (!text) {
+    alert("⚠️ لطفاً متن خود را وارد کنید.");
+    return;
+  }
+  if (!language) {
+    alert("⚠️ لطفاً یک زبان انتخاب کنید.");
+    return;
+  }
 
-    <section id="results" class="hidden">
-      <h2>Translation Result</h2>
-      <p><strong>Original:</strong> <span id="originalText"></span></p>
-      <p><strong>Your translation:</strong> <span id="translatedText"></span></p>
-      <button id="copyBtn">📋 Copy</button>
-    </section>
-  </div>
+  results.classList.remove("hidden");
+  originalText.textContent = text;
+  translatedText.textContent = "⏳ در حال ترجمه...";
 
-  <script src="app.js"></script>
-</body>
-</html>
+  try {
+    const response = await fetch(workerURL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        text: text,
+        target: language.value,
+      }),
+    });
+
+    if (!response.ok) {
+      const errMsg = await response.text();
+      translatedText.textContent = `❌ Error: ${errMsg}`;
+      return;
+    }
+
+    const data = await response.json();
+    translatedText.textContent =
+      data.translation || "❌ هیچ ترجمه‌ای دریافت نشد.";
+  } catch (err) {
+    translatedText.textContent = "⚠️ Failed to connect to server.";
+    console.error("Translation error:", err);
+  }
+});
+
+// دکمه ریست
+resetBtn.addEventListener("click", () => {
+  inputText.value = "";
+  translatedText.textContent = "";
+  originalText.textContent = "";
+  results.classList.add("hidden");
+});
+
+// دکمه کپی
+copyBtn.addEventListener("click", () => {
+  const textToCopy = translatedText.textContent;
+  navigator.clipboard.writeText(textToCopy).then(() => {
+    alert("✅ کپی شد!");
+  });
+});
