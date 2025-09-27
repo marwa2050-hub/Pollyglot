@@ -2,28 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PollyGlot Test</title>
 </head>
 <body>
-  <h1>PollyGlot – Translation Test</h1>
-
-  <!-- Input text -->
-  <textarea id="inputText" placeholder="متن خود را بنویسید..." rows="4" cols="50"></textarea>
-  <br><br>
-
-  <!-- Language options -->
+  <h1>Worker Connection Test</h1>
+  <textarea id="inputText" placeholder="Enter text"></textarea><br>
   <label><input type="radio" name="language" value="fr"> French</label>
   <label><input type="radio" name="language" value="es"> Spanish</label>
-  <label><input type="radio" name="language" value="de"> German</label>
-  <br><br>
+  <label><input type="radio" name="language" value="ja"> Japanese</label>
+  <button id="translateBtn">Translate</button>
 
-  <!-- Button -->
-  <button id="translateBtn">ترجمه</button>
-
-  <h2>نتیجه:</h2>
-  <p><b>متن اصلی:</b> <span id="originalText"></span></p>
-  <p><b>ترجمه:</b> <span id="translatedText"></span></p>
+  <h2>Result:</h2>
+  <pre id="resultBox">[Waiting...]</pre>
 
   <script src="app.js"></script>
 </body>
